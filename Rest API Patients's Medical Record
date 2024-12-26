@@ -1,0 +1,58 @@
+async function getAverageTemperatureForUser(userId) {
+     let page = 1;
+    let allTemperatures = [];
+    let hasMorePages = true;
+
+    // Function to fetch data from a specific page
+    const fetchPage = (page) => {
+        return new Promise((resolve, reject) => {
+            const url = `https://jsonmock.hackerrank.com/api/medical_records?userId=${userId}&page=${page}`;
+            
+            https.get(url, (resp) => {
+                let data = '';
+                
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+                
+                resp.on('end', () => {
+                    resolve(JSON.parse(data));
+                });
+                
+            }).on('error', (err) => {
+                reject(err);
+            });
+        });
+    };
+
+    try {
+        // Fetch first page to get total pages
+        const firstPage = await fetchPage(1);
+        const totalPages = firstPage.total_pages;
+
+        // If no data found, return '0'
+        if (firstPage.data.length === 0) {
+            return '0';
+        }
+
+        // Add temperatures from first page
+        allTemperatures = firstPage.data.map(record => record.vitals.bodyTemperature);
+
+        // Fetch remaining pages if any
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+            const pageData = await fetchPage(currentPage);
+            const temperatures = pageData.data.map(record => record.vitals.bodyTemperature);
+            allTemperatures = allTemperatures.concat(temperatures);
+        }
+
+        // Calculate average
+        const average = allTemperatures.reduce((sum, temp) => sum + temp, 0) / allTemperatures.length;
+        
+        // Return formatted string with 1 decimal place
+        return average.toFixed(1);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return '0';
+    }
+}
