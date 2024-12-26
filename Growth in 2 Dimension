@@ -1,0 +1,22 @@
+class Result {
+    /*
+     * Complete the 'countMax' function below.
+     *
+     * The function is expected to return a LONG_INTEGER.
+     * The function accepts STRING_ARRAY upRight as parameter.
+     */
+    public static long countMax(List<String> upRight) {
+    long minRow = Long.MAX_VALUE; 
+    long minCol = Long.MAX_VALUE; 
+ // Find the minimum row and column values
+     for (String coordinate : upRight) { 
+        String[] parts = coordinate.split(" "); 
+        long r = Long.parseLong(parts[0]); 
+        long c = Long.parseLong(parts[1]); 
+        minRow = Math.min(minRow, r); 
+      minCol = Math.min(minCol, c); 
+     } 
+    // The maximal value will occur at the intersection of minRow and minCol 
+ return minRow * minCol;
+ }
+}
